@@ -64,7 +64,9 @@ Installing the sensor involves 3D printing the parts, assembling them with a hex
 
 ### Printed detection sheet
 Print this on standard 8.5" x 11" paper, cut a hole in the center to accommodate your spool holder. Cut a large circle from the center and mount this between your spool and the 3D-printed mouse holder. When the spool turns, the paper should also turn. See the next photo.
+
 ![checkerboard-paper-printable](https://user-images.githubusercontent.com/15971213/47885301-9024fc80-ddf1-11e8-8b4a-b64b25e95c13.png)
+
 Here's the basic assembly of the detector sheet as trapped between the spool and the mouse assembly.
 
 ![img_0119](https://user-images.githubusercontent.com/15971213/47885553-e47cac00-ddf2-11e8-99e0-2b22c27db9c2.JPG)
