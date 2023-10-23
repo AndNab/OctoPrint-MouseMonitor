@@ -1,31 +1,28 @@
 <h4>{{ _('Spool Sensor') }}</h4>
 <form class="form-horizontal">
     <div class="control-group">
-        <label class="control-label">{{ _('Poll Time:') }}</label>
-        <div class="controls" data-toggle="tooltip" title="{{ _('Poll the mouse this many milliseconds apart (1000ms = 1s).') }}">
-            <input type="number" step="any" min="0" class="input-mini text-right" data-bind="value: settings.plugins.spoolsensor.poll_time">
-            <span class="add-on">ms</span>
+        <label class="control-label">{{ _('Spool Sensor Monitoring Interval:') }}</label>
+        <div class="controls" data-toggle="tooltip" title="{{ _('Check the spool movement every N seconds.') }}">
+            <input type="number" step="any" min="0" class="input-mini text-right" data-bind="value: settings.plugins.spoolsensor.spool_monitoring_interval_sec">
+            <span class="add-on">s</span>
         </div>
     </div>
     <div class="control-group">
-        <label class="control-label">{{ _('Event Confirmations:') }}</label>
-        <div class="controls" data-toggle="tooltip" title="{{ _('When a spool sensor state change happens, wait for this amount of continous reads of the spool not moving to trigger.') }}">
-            <input type="number" step="any" min="0" class="input-mini text-right" data-bind="value: settings.plugins.spoolsensor.confirmations">
+        <label class="control-label">{{ _('Initial Delay for Spool Checking:') }}</label>
+        <div class="controls" data-toggle="tooltip" title="{{ _('Number of seconds the spool checking is delayed after starting a print.') }}">
+            <input type="number" step="any" min="0" class="input-mini text-right" data-bind="value: settings.plugins.spoolsensor.initial_delay_sec">
+        </div>
+    </div>
+    <div class="control-group">
+        <label class="control-label">{{ _('Pixel threshold for valid spool movement') }}</label>
+        <div class="controls" data-toggle="tooltip" title="{{ _('Number of pixels which the spool sensor needs to move within the monitoring interval in order to count as valid movement.') }}">
+            <input type="number" step="any" min="0" class="input-mini text-right" data-bind="value: settings.plugins.spoolsensor.min_distance_pixel">
         </div>
     </div>
     <div class="control-group">
         <label class="control-label">{{ _('No spool movement GCODE:') }}</label>
         <div class="controls">
             <textarea rows="4" class="block" data-bind="value: settings.plugins.spoolsensor.no_movement_gcode"></textarea>
-        </div>
-    </div>
-    <div class="control-group">
-        <label class="control-label">{{ _('Debug Output:') }}</label>
-        <div class="controls" data-toggle="tooltip" title="{{ _('Print debug information out to the terminal/log.') }}">
-            <select class="select-mini" data-bind="value: settings.plugins.spoolsensor.debug_mode">
-                <option value=0>{{ _('Off') }}</option>
-                <option value=1>{{ _('On') }}</option>
-            </select>
         </div>
     </div>
     <div class="control-group">
