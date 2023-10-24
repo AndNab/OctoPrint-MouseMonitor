@@ -112,7 +112,7 @@ class SpoolSensorPlugin(octoprint.plugin.StartupPlugin,
 
     def get_update_information(self):
         return dict(
-            octoprint_spoolsensor=dict(
+            octoprint_spool_sensor=dict(
                 displayName="Spool Sensor",
                 displayVersion=self._plugin_version,
 
