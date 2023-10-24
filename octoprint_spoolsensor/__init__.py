@@ -11,7 +11,7 @@ from octoprint.events import Events
 from time import sleep
 
 
-class SpoolsensorPlugin(octoprint.plugin.StartupPlugin,
+class SpoolSensorPlugin(octoprint.plugin.StartupPlugin,
                              octoprint.plugin.EventHandlerPlugin,
                              octoprint.plugin.TemplatePlugin,
                              octoprint.plugin.SettingsPlugin):
@@ -128,9 +128,11 @@ class SpoolsensorPlugin(octoprint.plugin.StartupPlugin,
         )
 
     def on_move(self, x, y):
-        self._logger.info(f"x:{x}, y:{y}")
-        self._mouse_controller.position = (self._prev_x, self._prev_y)
-        distance = SpoolsensorPlugin.calculate_distance(x, y, self._prev_x, self._prev_y)
+        # Reset the mouse pointer to it's previous position to avoid moving to the monitors borders.
+        # As this will make the mouse unusable => only do it if a print is running
+        if self._is_print_running is True:
+            self._mouse_controller.position = (self._prev_x, self._prev_y)
+        distance = SpoolSensorPlugin.calculate_distance(x, y, self._prev_x, self._prev_y)
         with self._distance_lock:
             self._accumulated_distance += distance
 
@@ -178,7 +180,7 @@ class SpoolsensorPlugin(octoprint.plugin.StartupPlugin,
 __plugin_name__ = "Spool Sensor"
 __plugin_version__ = "1.0.2"
 __plugin_pythoncompat__ = ">=2.7,<4"
-__plugin_implementation__ = SpoolsensorPlugin()
+__plugin_implementation__ = SpoolSensorPlugin()
 
 def __plugin_load__():
     global __plugin_hooks__
