@@ -27,10 +27,9 @@ class SpoolsensorPlugin(octoprint.plugin.StartupPlugin,
         self._distance_lock = Lock()
 
     def __del__(self):
-        
         if self._mouse_listener is not None:
             self._mouse_listener.stop()
-        
+
     @property
     def spool_monitoring_interval_sec(self):
         return int(self._settings.get(["spool_monitoring_interval_sec"]))
@@ -140,14 +139,15 @@ class SpoolsensorPlugin(octoprint.plugin.StartupPlugin,
 
     def check_if_filament_is_inactive(self):
         while True:
-            if self._is_print_running is True:
-                with self._distance_lock:
-                    if self._accumulated_distance >= self.min_distance_pixel:
-                        self._is_filament_active = True
-                    else:
-                        self._is_filament_active = False
-                    self._accumulated_distance = 0
+            self._logger.debug("Spool sensor movement: %d" % self._accumulated_distance)
+            with self._distance_lock:
+                if self._accumulated_distance >= self.min_distance_pixel:
+                    self._is_filament_active = True
+                else:
+                    self._is_filament_active = False
+                self._accumulated_distance = 0
 
+            if self._is_print_running is True:
                 if self._is_filament_active:
                     self._logger.info("Filament activity detected!")
                 else:
