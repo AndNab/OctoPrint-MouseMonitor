@@ -75,6 +75,15 @@ The mouse may be inserted in either orientation. The plugin should detect spool 
 
 ### Software
 
+The software only runs on Linux based systems (e.g. Octopi). The software requires access to the mouse device ("/dev/input/mice). On Octopi this should work out of the box. In case the command "cat /dev/input/mice" returns with a permission error, the following steps are required (replace %%%YOUR_UNIX_USERNAME%%% with your unix username):
+
+1.) Execute the command "sudo addgroup mouse"
+2.) Execute the command "sudo usermod -a -G mouse %%%YOUR_UNIX_USERNAME%%%"
+3.) Create a file "/etc/udev/rules.d/75-mouse.rules" with the following content:
+        KERNEL=="mouse?", GROUP="mouse", MODE="660"
+        KERNEL=="mice", GROUP="mouse", MODE="660"
+4.) Reboot the system
+
 As an initial step, it may be necessary to first install the Raspbian Desktop from the `~/scripts` folder, having remoted into your Raspberry Pi. The `PyUserInput` Python module requires this as a dependency. Run `~/scripts/install-desktop` and reboot when it is finished.
 
 In **OctoPrint** -> **Settings** -> **Plugin Manager** -> **Get More...** -> **...from URL** -> `https://github.com/OutsourcedGuru/Octoprint-Spool-Sensor/archive/master.zip` -> **Install**
