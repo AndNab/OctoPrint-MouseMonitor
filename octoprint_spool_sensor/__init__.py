@@ -152,7 +152,7 @@ class SpoolSensorPlugin(octoprint.plugin.StartupPlugin,
                 self._is_filament_active = True
             else:
                 self._is_filament_active = False
-            self._logger.info("Spool sensor movement: %d" % accumulated_dist)
+            self._logger.debug("Spool sensor movement: %d" % accumulated_dist)
 
             if self._is_print_running is True:
                 if self._is_filament_active:
