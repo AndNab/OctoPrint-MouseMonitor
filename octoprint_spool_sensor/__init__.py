@@ -2,9 +2,9 @@
 from __future__ import absolute_import
 from flask import jsonify
 
-from pynput.mouse import Listener, Controller
 from threading import Timer, Thread, Lock
 import math
+import struct
 
 import octoprint.plugin
 from octoprint.events import Events
@@ -21,14 +21,14 @@ class SpoolSensorPlugin(octoprint.plugin.StartupPlugin,
         self._is_filament_active = False
         self._prev_x = 200
         self._prev_y = 200
-        self._mouse_listener = None
-        self._mouse_controller = None
         self._accumulated_distance = 0
         self._distance_lock = Lock()
 
+        self._mouse_file = None
+
     def __del__(self):
-        if self._mouse_listener is not None:
-            self._mouse_listener.stop()
+        if self._mouse_file is not None:
+            self._mouse_file.close()
 
     @property
     def spool_monitoring_interval_sec(self):
@@ -127,27 +127,32 @@ class SpoolSensorPlugin(octoprint.plugin.StartupPlugin,
             )
         )
 
-    def on_move(self, x, y):
-        # Reset the mouse pointer to it's previous position to avoid moving to the monitors borders.
-        # As this will make the mouse unusable => only do it if a print is running
-        if self._is_print_running is True:
-            self._mouse_controller.position = (self._prev_x, self._prev_y)
-        distance = SpoolSensorPlugin.calculate_distance(x, y, self._prev_x, self._prev_y)
-        with self._distance_lock:
-            self._accumulated_distance += distance
+    def start_mouse_movement_listener(self):
+        event = self._mouse_file.read(3)
+        while event:
+            mx, my = struct.unpack( "bb", event[1:] )
+
+            current_mouse_distance = SpoolSensorPlugin.calculate_distance(mx, my, 0, 0)
+            with self._distance_lock:
+                self._accumulated_distance += current_mouse_distance
+            event = self._mouse_file.read(3)
+
 
     def on_exit(self):
         print("Exit filament activity detection.")
 
     def check_if_filament_is_inactive(self):
         while True:
-            self._logger.debug("Spool sensor movement: %d" % self._accumulated_distance)
+            accumulated_dist = 0
             with self._distance_lock:
-                if self._accumulated_distance >= self.min_distance_pixel:
-                    self._is_filament_active = True
-                else:
-                    self._is_filament_active = False
+                accumulated_dist = self._accumulated_distance
                 self._accumulated_distance = 0
+
+            if accumulated_dist >= self.min_distance_pixel:
+                self._is_filament_active = True
+            else:
+                self._is_filament_active = False
+            self._logger.info("Spool sensor movement: %d" % accumulated_dist)
 
             if self._is_print_running is True:
                 if self._is_filament_active:
@@ -167,18 +172,14 @@ class SpoolSensorPlugin(octoprint.plugin.StartupPlugin,
         timer_thread.start()
 
     def start_tracking(self):
+        infile_path = "/dev/input/mice"
+        #open file in binary mode
+        self._mouse_file = open(infile_path, "rb")
         thread = Thread(target=self.start_mouse_movement_listener)
         thread.start()
 
-    def start_mouse_movement_listener(self):
-        if self._mouse_listener is None:
-            self._mouse_controller = Controller()
-            self._logger.info("Start mouse movement listener!")
-            self._mouse_listener = Listener(on_move=self.on_move, on_exit=self.on_exit)
-            self._mouse_listener.start()
-
 __plugin_name__ = "Spool Sensor"
-__plugin_version__ = "1.0.2"
+__plugin_version__ = "1.0.3"
 __plugin_pythoncompat__ = ">=2.7,<4"
 __plugin_implementation__ = SpoolSensorPlugin()
 
