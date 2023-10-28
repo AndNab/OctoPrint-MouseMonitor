@@ -70,9 +70,9 @@ class SpoolSensorPlugin(octoprint.plugin.StartupPlugin,
     def get_settings_defaults(self):
         return({
             'spool_monitoring_interval_sec':10, # Spool movement is checked every N seconds
-            'initial_delay_sec':30,             # When starting a print the spool movement is checked after an initial delay of N seconds
-            'min_distance_pixel':5,             # Number of pixels within a spool check interval to consider a valid spool movement.
-            'no_movement_gcode':'',
+            'initial_delay_sec':30,             # When starting a print the movement is checked after an initial delay of N seconds
+            'min_distance_pixel':5,             # Number of pixels within a check interval to consider a valid spool movement.
+            'no_movement_gcode':'',             # gcode to be excecuted 
             'pause_print':True,
         })
 
@@ -177,6 +177,37 @@ class SpoolSensorPlugin(octoprint.plugin.StartupPlugin,
         self._mouse_file = open(infile_path, "rb")
         thread = Thread(target=self.start_mouse_movement_listener)
         thread.start()
+
+    def distance_detection(self, comm_instance, phase, cmd, cmd_type, gcode, *args, **kwargs):
+        # IF-Bedingung ergänzen: 'nur wenn Messung aktiv ist' .... if():
+            # G0 and G1 for linear moves and G2 and G3 for circle movements
+            if(gcode == "G0" or gcode == "G1" or gcode == "G2" or gcode == "G3"):
+                commands = cmd.split(" ")
+
+                for command in commands:
+                    if command.startswith("E"):
+                        extruder = command[1:]
+                        self.calc_distance(float(extruder))
+                        self._logger.debug("E: " + extruder)
+
+            # G92 reset extruder
+            elif(gcode == "G92"):
+                if(self.detection_method == 1):
+                    self.init_distance_detection()
+                self._logger.debug("G92: Reset Extruders")
+
+            # M82 absolut extrusion mode
+            elif(gcode == "M82"):
+                self._data.absolut_extrusion = True
+                self._logger.info("M82: Absolut extrusion")
+
+            # M83 relative extrusion mode
+            elif(gcode == "M83"):
+                self._data.absolut_extrusion = False
+                self._logger.info("M83: Relative extrusion")
+
+      return cmd
+
 
 __plugin_name__ = "MouseMonitor"
 __plugin_version__ = "1.0.4"
