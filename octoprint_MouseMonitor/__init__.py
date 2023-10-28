@@ -178,6 +178,39 @@ class MouseMonitorPlugin(octoprint.plugin.StartupPlugin,
         thread = Thread(target=self.start_mouse_movement_listener)
         thread.start()
 
+    def calc_distance(self, pE):
+        # Calculate deltaDistance if absolute extrusion
+        if (self._data.absolut_extrusion):
+            # LastE is not used and set to the same value as currentE. Occurs on first run or after resuming
+            if (self.lastE < 0):
+                self._logger.info(f"Ignoring run with a negative value. Setting LastE to PE: {self.lastE} = {pE}")
+                self.lastE = pE
+            else:
+                self.lastE = self.currentE
+
+            self.currentE = pE
+
+            deltaDistance = self.currentE - self.lastE
+            self._logger.debug( f"CurrentE: {self.currentE} - LastE: {self.lastE} = { round(deltaDistance,3) }" )
+
+        # deltaDistance is just position if relative extrusion
+        else:
+            deltaDistance = float(pE)
+            self._logger.debug( f"Relative Extrusion = { round(deltaDistance,3) }" )
+
+        if(deltaDistance > self.motion_sensor_detection_distance):
+            # Calculate the deltaDistance modulo the motion_sensor_detection_distance
+            # Sometimes the polling of M114 is inaccurate so that with the next poll
+            # very high distances are put back followed by zero distance changes
+
+            #deltaDistance=deltaDistance / self.motion_sensor_detection_distance REMAINDER
+            deltaDistance = deltaDistance % self.motion_sensor_detection_distance
+
+        self._logger.debug(
+            f"Remaining: {self._data.remaining_distance} - Extruded: {deltaDistance} = {self._data.remaining_distance - deltaDistance}"
+        )
+        self._data.remaining_distance = (self._data.remaining_distance - deltaDistance)
+                               
     def distance_detection(self, comm_instance, phase, cmd, cmd_type, gcode, *args, **kwargs):
         # IF-Bedingung ergänzen: 'nur wenn Messung aktiv ist' .... if():
             # G0 and G1 for linear moves and G2 and G3 for circle movements
