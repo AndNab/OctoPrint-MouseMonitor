@@ -11,7 +11,7 @@ from octoprint.events import Events
 from time import sleep
 
 
-class SpoolSensorPlugin(octoprint.plugin.StartupPlugin,
+class MouseMonitorPlugin(octoprint.plugin.StartupPlugin,
                              octoprint.plugin.EventHandlerPlugin,
                              octoprint.plugin.TemplatePlugin,
                              octoprint.plugin.SettingsPlugin):
@@ -212,7 +212,7 @@ class SpoolSensorPlugin(octoprint.plugin.StartupPlugin,
 __plugin_name__ = "MouseMonitor"
 __plugin_version__ = "1.0.4"
 __plugin_pythoncompat__ = ">=2.7,<4"
-__plugin_implementation__ = MouseMonitor()
+__plugin_implementation__ = MouseMonitorPlugin()
 
 def __plugin_load__():
     global __plugin_hooks__
