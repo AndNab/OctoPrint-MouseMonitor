@@ -206,7 +206,7 @@ class SpoolSensorPlugin(octoprint.plugin.StartupPlugin,
                 self._data.absolut_extrusion = False
                 self._logger.info("M83: Relative extrusion")
 
-      return cmd
+            return cmd
 
 
 __plugin_name__ = "MouseMonitor"
