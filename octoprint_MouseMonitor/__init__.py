@@ -31,8 +31,8 @@ class MouseMonitorPlugin(octoprint.plugin.StartupPlugin,
             self._mouse_file.close()
 
     @property
-    def spool_monitoring_interval_sec(self):
-        return int(self._settings.get(["spool_monitoring_interval_sec"]))
+    def monitoring_interval_sec(self):
+        return int(self._settings.get(["monitoring_interval_sec"]))
 
     @property
     def initial_delay_sec(self):
@@ -69,7 +69,7 @@ class MouseMonitorPlugin(octoprint.plugin.StartupPlugin,
 
     def get_settings_defaults(self):
         return({
-            'spool_monitoring_interval_sec':10, # Spool movement is checked every N seconds
+            'monitoring_interval_sec':10, # Spool movement is checked every N seconds
             'initial_delay_sec':30,             # When starting a print the movement is checked after an initial delay of N seconds
             'min_distance_pixel':5,             # Number of pixels within a check interval to consider a valid spool movement.
             'no_movement_gcode':'',             # gcode to be excecuted 
@@ -165,7 +165,7 @@ class MouseMonitorPlugin(octoprint.plugin.StartupPlugin,
                     if self.no_movement_gcode:
                         self._logger.info("Sending no movement GCODE...")
                         self._printer.commands(self.no_movement_gcode)
-            sleep(self.spool_monitoring_interval_sec)
+            sleep(self.monitoring_interval_sec)
 
     def start_timer(self):
         timer_thread = Thread(target=self.check_if_filament_is_inactive)
