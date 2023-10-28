@@ -1,34 +1,34 @@
-<h4>{{ _('Spool Sensor') }}</h4>
+<h4>{{ _('MouseMonitor') }}</h4>
 <form class="form-horizontal">
     <div class="control-group">
-        <label class="control-label">{{ _('Spool Sensor Monitoring Interval:') }}</label>
-        <div class="controls" data-toggle="tooltip" title="{{ _('Check the spool movement every N seconds.') }}">
-            <input type="number" step="any" min="0" class="input-mini text-right" data-bind="value: settings.plugins.spool_sensor.spool_monitoring_interval_sec">
+        <label class="control-label">{{ _('Monitoring Interval:') }}</label>
+        <div class="controls" data-toggle="tooltip" title="{{ _('Check the movement every N seconds.') }}">
+            <input type="number" step="any" min="0" class="input-mini text-right" data-bind="value: settings.plugins.MouseMonitor.monitoring_interval_sec">
             <span class="add-on">s</span>
         </div>
     </div>
     <div class="control-group">
-        <label class="control-label">{{ _('Initial Delay for Spool Checking:') }}</label>
-        <div class="controls" data-toggle="tooltip" title="{{ _('Number of seconds the spool checking is delayed after starting a print.') }}">
-            <input type="number" step="any" min="0" class="input-mini text-right" data-bind="value: settings.plugins.spool_sensor.initial_delay_sec">
+        <label class="control-label">{{ _('Initial Delay for Checking:') }}</label>
+        <div class="controls" data-toggle="tooltip" title="{{ _('Number of seconds the checking is delayed after starting a print.') }}">
+            <input type="number" step="any" min="0" class="input-mini text-right" data-bind="value: settings.plugins.MouseMonitor.initial_delay_sec">
         </div>
     </div>
     <div class="control-group">
-        <label class="control-label">{{ _('Pixel threshold for valid spool movement') }}</label>
-        <div class="controls" data-toggle="tooltip" title="{{ _('Number of pixels which the spool sensor needs to move within the monitoring interval in order to count as valid movement.') }}">
-            <input type="number" step="any" min="0" class="input-mini text-right" data-bind="value: settings.plugins.spool_sensor.min_distance_pixel">
+        <label class="control-label">{{ _('Pixel threshold for valid movement') }}</label>
+        <div class="controls" data-toggle="tooltip" title="{{ _('Number of pixels which the sensor needs to move within the monitoring interval in order to count as valid movement.') }}">
+            <input type="number" step="any" min="0" class="input-mini text-right" data-bind="value: settings.plugins.MouseMonitor.min_distance_pixel">
         </div>
     </div>
     <div class="control-group">
-        <label class="control-label">{{ _('No spool movement GCODE:') }}</label>
+        <label class="control-label">{{ _('No movement GCODE:') }}</label>
         <div class="controls">
-            <textarea rows="4" class="block" data-bind="value: settings.plugins.spool_sensor.no_movement_gcode"></textarea>
+            <textarea rows="4" class="block" data-bind="value: settings.plugins.MouseMonitor.no_movement_gcode"></textarea>
         </div>
     </div>
     <div class="control-group">
         <div class="controls" data-toggle="tooltip" title="{{ _('Beware that for some printers, pausing is incompatible with M600 (Filament change pause) as both will move the print head and it can resume at a different position as it paused.') }}">
             <label class="checkbox">
-                <input type="checkbox" data-bind="checked: settings.plugins.spool_sensor.pause_print"> {{ _('Pause print when no spool movement detected') }}
+                <input type="checkbox" data-bind="checked: settings.plugins.MouseMonitor.pause_print"> {{ _('Pause print when no movement detected') }}
             </label>
         </div>
     </div>
