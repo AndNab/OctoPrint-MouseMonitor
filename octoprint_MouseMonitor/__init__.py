@@ -124,7 +124,7 @@ class MouseMonitorPlugin(octoprint.plugin.StartupPlugin,
         while event:
             mx, my = struct.unpack( "bb", event[1:] )
 
-            current_mouse_distance = SpoolSensorPlugin.calculate_distance(mx, my, 0, 0)
+            current_mouse_distance = MouseMontiorPlugin.calculate_distance(mx, my, 0, 0)
             with self._distance_lock:
                 self._accumulated_distance += current_mouse_distance
             event = self._mouse_file.read(3)
