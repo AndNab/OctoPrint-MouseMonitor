@@ -118,23 +118,6 @@ class MouseMonitorPlugin(octoprint.plugin.StartupPlugin,
         # Probably want to change this
         return jsonify( status = status )
 
-                                 
-    def get_update_information(self):
-        return dict(
-            octoprint_spool_sensor=dict(
-                displayName="Spool Sensor",
-                displayVersion=self._plugin_version,
-
-                # version check: github repository
-                type="github_release",
-                user="OutsourcedGuru",
-                repo="Octoprint-Spool-Sensor",
-                current=self._plugin_version,
-
-                # update method: pip
-                pip="https://github.com/OutsourcedGuru/Octoprint-Spool-Sensor/archive/{target_version}.zip"
-            )
-        )
 
     def start_mouse_movement_listener(self):
         event = self._mouse_file.read(3)
