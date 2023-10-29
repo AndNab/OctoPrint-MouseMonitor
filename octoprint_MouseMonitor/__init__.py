@@ -65,16 +65,16 @@ class MouseMonitorPlugin(octoprint.plugin.StartupPlugin,
 
                                  
     def on_after_startup(self):
-        self._logger.info("Spool Sensor started")
+        self._logger.info("MouseMonitor Sensor started")
         self.start_tracking()
         self.start_timer()
 
                                  
     def get_settings_defaults(self):
         return({
-            'monitoring_interval_sec':10,       # Spool movement is checked every N seconds
+            'monitoring_interval_sec':10,       # Movement is checked every N seconds
             'initial_delay_sec':30,             # When starting a print the movement is checked after an initial delay of N seconds
-            'min_distance_pixel':2,             # Number of pixels within a check interval to consider a valid spool movement.
+            'min_distance_pixel':2,             # Number of pixels within a check interval to consider a valid movement.
             'no_movement_gcode':'',             # gcode to be excecuted 
             'pause_print':True,
         })
@@ -95,7 +95,7 @@ class MouseMonitorPlugin(octoprint.plugin.StartupPlugin,
             Events.PRINT_STARTED,
             Events.PRINT_RESUMED
         ):
-            self._logger.info("%s: Enabling MouseMonitor sensor..." % (event))
+            self._logger.info("%s: Enabling MouseMonitor..." % (event))
             t = Timer(self.initial_delay_sec, self.start_filament_checker)
             t.start()
         
@@ -107,7 +107,7 @@ class MouseMonitorPlugin(octoprint.plugin.StartupPlugin,
             Events.PRINT_PAUSED,
             Events.ERROR
         ):
-            self._logger.info("%s: Disabling spool sensor..." % (event))
+            self._logger.info("%s: Disabling MouseMonitor..." % (event))
             self._logger.info("Mouse events disabled")
             self._is_print_running = False
 
@@ -145,13 +145,13 @@ class MouseMonitorPlugin(octoprint.plugin.StartupPlugin,
                 self._is_filament_active = True
             else:
                 self._is_filament_active = False
-            self._logger.debug("Spool sensor movement: %d" % accumulated_dist)
+            self._logger.debug("MouseMonitor sensor movement: %d" % accumulated_dist)
 
             if self._is_print_running is True:
                 if self._is_filament_active is True:
                     self._logger.info("Filament activity detected!")
                 else:
-                    self._logger.info("No spool movement detected!")
+                    self._logger.info("No movement detected!")
                     if self.pause_print:
                         self._logger.info("Pausing print...")
                         self._printer.pause_print()
