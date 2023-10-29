@@ -145,6 +145,7 @@ class MouseMonitorPlugin(octoprint.plugin.StartupPlugin,
                 self._is_filament_active = True
             else:
                 self._is_filament_active = False
+              
             self._logger.debug("MouseMonitor sensor movement: %d" % accumulated_dist)
 
             if self._is_print_running is True:
@@ -158,6 +159,7 @@ class MouseMonitorPlugin(octoprint.plugin.StartupPlugin,
                     if self.no_movement_gcode:
                         self._logger.info("Sending no movement GCODE...")
                         self._printer.commands(self.no_movement_gcode)
+                      
             sleep(self.monitoring_interval_sec)
 
                                  
@@ -188,6 +190,7 @@ class MouseMonitorPlugin(octoprint.plugin.StartupPlugin,
                     extruder = command[1:]
                     self.calc_distance(float(extruder))
                     # self._logger.debug("E: " + extruder)
+      
         return cmd
 
 
