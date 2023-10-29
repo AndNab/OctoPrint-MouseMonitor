@@ -54,6 +54,7 @@ class MouseMonitorPlugin(octoprint.plugin.StartupPlugin,
     def calculate_distance(x1, y1, x2, y2):
         return math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
 
+                                 
     def start_filament_checker(self):
         # Reset the accumulated distance when starting a print
         with self._distance_lock:
@@ -62,11 +63,13 @@ class MouseMonitorPlugin(octoprint.plugin.StartupPlugin,
         self._mouse_controller.position = (self._prev_x, self._prev_y)
         self._is_print_running = True
 
+                                 
     def on_after_startup(self):
         self._logger.info("Spool Sensor started")
         self.start_tracking()
         self.start_timer()
 
+                                 
     def get_settings_defaults(self):
         return({
             'monitoring_interval_sec':10, # Spool movement is checked every N seconds
@@ -76,13 +79,16 @@ class MouseMonitorPlugin(octoprint.plugin.StartupPlugin,
             'pause_print':True,
         })
 
+                                 
     def on_settings_save(self, data):
         octoprint.plugin.SettingsPlugin.on_settings_save(self, data)
         self._setup_sensor()
 
+                                 
     def get_template_configs(self):
         return [dict(type="settings", custom_bindings=False)]
 
+                                 
     def on_event(self, event, _):
         # Enable sensor
         if event in (
@@ -104,12 +110,14 @@ class MouseMonitorPlugin(octoprint.plugin.StartupPlugin,
             self._logger.info("Mouse events disabled")
             self._is_print_running = False
 
+                                 
     @octoprint.plugin.BlueprintPlugin.route("/status", methods=["GET"])
     def check_status(self):
         status = "-1"
         # Probably want to change this
         return jsonify( status = status )
 
+                                 
     def get_update_information(self):
         return dict(
             octoprint_spool_sensor=dict(
@@ -137,10 +145,11 @@ class MouseMonitorPlugin(octoprint.plugin.StartupPlugin,
                 self._accumulated_distance += current_mouse_distance
             event = self._mouse_file.read(3)
 
-
+                                 
     def on_exit(self):
         print("Exit filament activity detection.")
 
+                                 
     def check_if_filament_is_inactive(self):
         while True:
             accumulated_dist = 0
@@ -167,10 +176,12 @@ class MouseMonitorPlugin(octoprint.plugin.StartupPlugin,
                         self._printer.commands(self.no_movement_gcode)
             sleep(self.monitoring_interval_sec)
 
+                                 
     def start_timer(self):
         timer_thread = Thread(target=self.check_if_filament_is_inactive)
         timer_thread.start()
 
+                                 
     def start_tracking(self):
         infile_path = "/dev/input/mice"
         #open file in binary mode
@@ -178,68 +189,22 @@ class MouseMonitorPlugin(octoprint.plugin.StartupPlugin,
         thread = Thread(target=self.start_mouse_movement_listener)
         thread.start()
 
+                                 
     def calc_distance(self, pE):
-        # Calculate deltaDistance if absolute extrusion
-        if (self._data.absolut_extrusion):
-            # LastE is not used and set to the same value as currentE. Occurs on first run or after resuming
-            if (self.lastE < 0):
-                self._logger.info(f"Ignoring run with a negative value. Setting LastE to PE: {self.lastE} = {pE}")
-                self.lastE = pE
-            else:
-                self.lastE = self.currentE
+        deltaDistance = float(pE)
+        self._logger.debug( f"Relative Extrusion = { round(deltaDistance,3) }" )
 
-            self.currentE = pE
-
-            deltaDistance = self.currentE - self.lastE
-            self._logger.debug( f"CurrentE: {self.currentE} - LastE: {self.lastE} = { round(deltaDistance,3) }" )
-
-        # deltaDistance is just position if relative extrusion
-        else:
-            deltaDistance = float(pE)
-            self._logger.debug( f"Relative Extrusion = { round(deltaDistance,3) }" )
-
-        if(deltaDistance > self.motion_sensor_detection_distance):
-            # Calculate the deltaDistance modulo the motion_sensor_detection_distance
-            # Sometimes the polling of M114 is inaccurate so that with the next poll
-            # very high distances are put back followed by zero distance changes
-
-            #deltaDistance=deltaDistance / self.motion_sensor_detection_distance REMAINDER
-            deltaDistance = deltaDistance % self.motion_sensor_detection_distance
-
-        self._logger.debug(
-            f"Remaining: {self._data.remaining_distance} - Extruded: {deltaDistance} = {self._data.remaining_distance - deltaDistance}"
-        )
-        self._data.remaining_distance = (self._data.remaining_distance - deltaDistance)
-                               
+                                 
     def distance_detection(self, comm_instance, phase, cmd, cmd_type, gcode, *args, **kwargs):
-        # IF-Bedingung ergänzen: 'nur wenn Messung aktiv ist' .... if():
-            # G0 and G1 for linear moves and G2 and G3 for circle movements
-            if(gcode == "G0" or gcode == "G1" or gcode == "G2" or gcode == "G3"):
-                commands = cmd.split(" ")
+        if(gcode == "G0" or gcode == "G1" or gcode == "G2" or gcode == "G3"):
+            commands = cmd.split(" ")
 
-                for command in commands:
-                    if command.startswith("E"):
-                        extruder = command[1:]
-                        self.calc_distance(float(extruder))
-                        self._logger.debug("E: " + extruder)
-
-            # G92 reset extruder
-            elif(gcode == "G92"):
-                if(self.detection_method == 1):
-                    self.init_distance_detection()
-                self._logger.debug("G92: Reset Extruders")
-
-            # M82 absolut extrusion mode
-            elif(gcode == "M82"):
-                self._data.absolut_extrusion = True
-                self._logger.info("M82: Absolut extrusion")
-
-            # M83 relative extrusion mode
-            elif(gcode == "M83"):
-                self._data.absolut_extrusion = False
-                self._logger.info("M83: Relative extrusion")
-
-            return cmd
+            for command in commands:
+                if command.startswith("E"):
+                    extruder = command[1:]
+                    self.calc_distance(float(extruder))
+                    # self._logger.debug("E: " + extruder)
+        return cmd
 
 
 __plugin_name__ = "MouseMonitor"
@@ -247,9 +212,9 @@ __plugin_version__ = "1.0.4"
 __plugin_pythoncompat__ = ">=2.7,<4"
 __plugin_implementation__ = MouseMonitorPlugin()
 
+
 def __plugin_load__():
     global __plugin_hooks__
-    __plugin_hooks__ = {
-        "octoprint.plugin.softwareupdate.check_config": __plugin_implementation__.get_update_information #,
-        #"octoprint.comm.protocol.gcode.sent": __plugin_implementation__.distance_detection
+    __plugin_hooks__ = {,
+      "octoprint.comm.protocol.gcode.sent": __plugin_implementation__.distance_detection
 }
