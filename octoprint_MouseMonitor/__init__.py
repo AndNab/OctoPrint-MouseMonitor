@@ -72,9 +72,9 @@ class MouseMonitorPlugin(octoprint.plugin.StartupPlugin,
                                  
     def get_settings_defaults(self):
         return({
-            'monitoring_interval_sec':10, # Spool movement is checked every N seconds
+            'monitoring_interval_sec':10,       # Spool movement is checked every N seconds
             'initial_delay_sec':30,             # When starting a print the movement is checked after an initial delay of N seconds
-            'min_distance_pixel':5,             # Number of pixels within a check interval to consider a valid spool movement.
+            'min_distance_pixel':2,             # Number of pixels within a check interval to consider a valid spool movement.
             'no_movement_gcode':'',             # gcode to be excecuted 
             'pause_print':True,
         })
@@ -95,9 +95,10 @@ class MouseMonitorPlugin(octoprint.plugin.StartupPlugin,
             Events.PRINT_STARTED,
             Events.PRINT_RESUMED
         ):
-            self._logger.info("%s: Enabling spool sensor..." % (event))
+            self._logger.info("%s: Enabling MouseMonitor sensor..." % (event))
             t = Timer(self.initial_delay_sec, self.start_filament_checker)
             t.start()
+        
         # Disable sensor
         elif event in (
             Events.PRINT_DONE,
@@ -215,6 +216,6 @@ __plugin_implementation__ = MouseMonitorPlugin()
 
 def __plugin_load__():
     global __plugin_hooks__
-    __plugin_hooks__ = {,
+    __plugin_hooks__ = {
       "octoprint.comm.protocol.gcode.sent": __plugin_implementation__.distance_detection
 }
